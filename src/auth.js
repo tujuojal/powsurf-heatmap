@@ -24,14 +24,15 @@ function sanitizeReturnTo(raw) {
 	return DEFAULT_RETURN_TO;
 }
 
-async function signState(payload, secret) {
+// Exported for testing — not part of the HTTP-facing API surface.
+export async function signState(payload, secret) {
 	const json = JSON.stringify(payload);
 	const encoded = base64UrlEncode(new TextEncoder().encode(json));
 	const sig = await hmacSign(secret, encoded);
 	return `${encoded}.${base64UrlEncode(sig)}`;
 }
 
-async function verifyState(state, secret) {
+export async function verifyState(state, secret) {
 	if (typeof state !== 'string') return null;
 	const parts = state.split('.');
 	if (parts.length !== 2) return null;
