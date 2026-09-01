@@ -75,15 +75,20 @@ function withErrorHash(returnTo, reason) {
 export async function handleAuthStart(request, env) {
 	const url = new URL(request.url);
 	const returnTo = sanitizeReturnTo(url.searchParams.get('returnTo'));
-	const state = await signState({ n: crypto.randomUUID(), r: returnTo, t: Date.now() }, env.OAUTH_STATE_SECRET);
 
-	const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
-	authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
-	authorizeUrl.searchParams.set('redirect_uri', callbackUrl(url));
-	authorizeUrl.searchParams.set('scope', 'read:user');
-	authorizeUrl.searchParams.set('state', state);
+	try {
+		const state = await signState({ n: crypto.randomUUID(), r: returnTo, t: Date.now() }, env.OAUTH_STATE_SECRET);
 
-	return Response.redirect(authorizeUrl.toString(), 302);
+		const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
+		authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
+		authorizeUrl.searchParams.set('redirect_uri', callbackUrl(url));
+		authorizeUrl.searchParams.set('scope', 'read:user');
+		authorizeUrl.searchParams.set('state', state);
+
+		return Response.redirect(authorizeUrl.toString(), 302);
+	} catch {
+		return Response.redirect(withErrorHash(returnTo, 'auth_start_failed'), 302);
+	}
 }
 
 export async function handleAuthCallback(request, env) {
