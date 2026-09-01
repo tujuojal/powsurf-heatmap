@@ -13,6 +13,13 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "powsurf",
+			"database_id": "9d13ff2a-a315-4dc9-be04-d42f819668a0"
+		}
 	]
 	/**
 	 * Smart Placement
